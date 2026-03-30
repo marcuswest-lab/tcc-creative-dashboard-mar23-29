@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>TCC Creative Performance Dashboard | Mar 23–29, 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',system-ui,-apple-system,sans-serif;background:#0C0F14;color:#E2E8F0;line-height:1.5;padding:24px 24px 48px}
+.container{max-width:1700px;margin:0 auto}
+
+/* Header */
+.header{text-align:center;margin-bottom:16px}
+.header h1{font-size:28px;font-weight:700;color:#F8FAFC;letter-spacing:-.5px}
+.header .subtitle{font-size:14px;color:#94A3B8;margin-top:4px}
+
+/* Legend */
+.legend{display:flex;justify-content:center;flex-wrap:wrap;gap:24px;margin:16px 0 20px;font-size:12px;color:#94A3B8}
+.legend-item{display:flex;align-items:center;gap:6px}
+.legend-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.dot-green{background:#34D399}
+.dot-yellow{background:#FBBF24}
+.dot-red{background:#F87171}
+.dot-gray{background:#475569}
+
+/* Controls */
+.controls{display:flex;gap:10px;margin-bottom:16px;align-items:center;flex-wrap:wrap}
+.search-input{width:280px;padding:8px 12px;background:#151922;border:1px solid #334155;border-radius:8px;color:#E2E8F0;font-size:13px;font-family:'DM Sans',sans-serif;outline:none;transition:border-color .2s}
+.search-input:focus{border-color:#3B82F6}
+.search-input::placeholder{color:#475569}
+.filter-btn{padding:7px 14px;background:#151922;border:1px solid #334155;border-radius:8px;color:#94A3B8;font-size:12px;font-family:'DM Sans',sans-serif;cursor:pointer;transition:all .15s;white-space:nowrap}
+.filter-btn:hover{border-color:#475569;color:#CBD5E1}
+.filter-btn.active{background:#334155;color:#E2E8F0;border-color:#475569}
+
+/* Tab bar */
+.tab-bar{display:inline-flex;background:#151922;border-radius:10px;border:1px solid #1E293B;margin-bottom:16px;width:fit-content}
+.tab-btn{padding:10px 20px;background:none;border:none;border-right:1px solid #1E293B;color:#64748B;font-size:13px;font-family:'DM Sans',sans-serif;cursor:pointer;transition:all .15s;white-space:nowrap}
+.tab-btn:last-child{border-right:none}
+.tab-btn:hover{color:#CBD5E1}
+.tab-btn.active{background:#3B82F6;color:#fff;border-radius:9px}
+.tab-btn .cnt{opacity:.6;margin-left:2px}
+
+/* Table wrapper */
+.table-wrap{overflow-x:auto;border-radius:10px;border:1px solid #1E293B}
+table{width:100%;border-collapse:collapse;font-size:13px}
+thead th{background:#151922;padding:10px 14px;text-align:left;font-weight:600;color:#94A3B8;border-bottom:1px solid #1E293B;white-space:nowrap;cursor:pointer;user-select:none;font-size:11px;text-transform:uppercase;letter-spacing:.5px;position:sticky;top:0;z-index:10}
+thead th:hover{color:#CBD5E1}
+thead th .arrow{font-size:9px;margin-left:3px;opacity:.3}
+thead th.sorted .arrow{opacity:1;color:#3B82F6}
+tbody tr{border-bottom:1px solid #1E293B;transition:background .1s}
+tbody tr:hover{background:#1a1f2e}
+tbody td{padding:9px 14px;white-space:nowrap;font-family:'JetBrains Mono',monospace;font-size:12px;color:#CBD5E1}
+td.name-col{white-space:normal;min-width:340px;max-width:400px;font-family:'DM Sans',sans-serif;font-weight:500;font-size:13px;color:#F8FAFC}
+td.idx-col{min-width:36px;text-align:center;color:#475569;font-size:11px}
+td.num{text-align:right}
+
+/* Sticky columns */
+th.stick-idx,td.stick-idx{position:sticky;left:0;z-index:5;background:#151922}
+th.stick-name,td.stick-name{position:sticky;left:36px;z-index:5;background:#151922}
+th.stick-idx,th.stick-name{z-index:11}
+tbody tr:hover td.stick-idx,tbody tr:hover td.stick-name{background:#1a1f2e}
+
+/* Badges */
+.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-weight:600;font-size:12px;font-family:'JetBrains Mono',monospace}
+.wk{background:rgba(52,211,153,.15);color:#34D399}
+.of{background:rgba(251,191,36,.15);color:#FBBF24}
+.ak{background:rgba(248,113,113,.15);color:#F87171}
+.nd{color:#475569}
+
+/* Status badges */
+.status-badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;font-family:'DM Sans',sans-serif}
+.status-winner{background:rgba(52,211,153,.15);color:#34D399}
+.status-loser{background:rgba(248,113,113,.15);color:#F87171}
+.status-testing{background:rgba(96,165,250,.15);color:#60A5FA}
+.status-fence{background:rgba(251,191,36,.15);color:#FBBF24}
+.status-paused{background:rgba(71,85,105,.15);color:#94A3B8}
+
+/* View link */
+.view-link{color:#60A5FA;text-decoration:none;font-family:'DM Sans',sans-serif;font-size:11px;display:inline-flex;align-items:center;gap:3px;transition:color .15s}
+.view-link:hover{color:#93C5FD}
+.view-link svg{width:11px;height:11px}
+.no-link{color:#475569}
+
+/* Row count */
+.row-count{text-align:right;color:#475569;font-size:12px;margin-top:8px;font-family:'DM Sans',sans-serif}
+
+/* Tab panels */
+.tab-panel{display:none}
+.tab-panel.active{display:block}
+</style>
+</head>
+<body>
+<div class="container">
+
+<!-- Header -->
+<div class="header">
+  <h1>TCC Creative Performance Dashboard</h1>
+  <div class="subtitle">The Contractor Consultants &mdash; Weekly Performance Data (Mar 23&ndash;29, 2026) | Generated March 30, 2026</div>
+</div>
+
+<!-- Legend -->
+<div class="legend" id="legend">
+  <div class="legend-item"><span class="legend-dot dot-green"></span> CPQA &le; $500</div>
+  <div class="legend-item"><span class="legend-dot dot-yellow"></span> CPQA $500&ndash;$600</div>
+  <div class="legend-item"><span class="legend-dot dot-red"></span> CPQA &gt; $600</div>
+  <div class="legend-item"><span class="legend-dot dot-gray"></span> No Data</div>
+</div>
+
+<!-- Controls -->
+<div class="controls">
+  <input class="search-input" id="search" type="text" placeholder="Search creatives...">
+  <button class="filter-btn" id="btnWinners" onclick="toggleFilter('winners')">Winners Only</button>
+  <button class="filter-btn" id="btnSpend" onclick="toggleFilter('spend')">Min $500 Spend</button>
+</div>
+
+<!-- Tab bar -->
+<div class="tab-bar" id="tabBar"></div>
+
+<!-- Tab panels -->
+<div id="panels"></div>
+
+</div>
+
+<script>
+// ======================== DATA ========================
+const DATA_STATICS = [
+{name:'SC54_WereHiringSystem | SV18_BlackText',status:'Winner',link:'https://www.facebook.com/?feed_demo_ad=120243545214160271\u0026h=AQLRko26VlpDN88VXnWsb29MS-s',cost:7519.74,leads:33.0,cpl:227.870909,qa:24.0,cpqa:313.3225,mql:13.0,cpmql:578.441538,sql:6.0,cpsql:1253.29,cust:4.0,cac:1879.935,ctrAll:0.83,ctrLink:0.48,cpm:35.718479,impr:210528.0},
+{name:'Realistic Visual - MarketSnapshot - Short Crew - Problem-Solution Lead 2 - CIDUX7ZL1D',status:'Testing',link:'https://www.facebook.com/?feed_demo_ad=120244529215720271\u0026h=AQLb2QXzuHajfnJKp5hmamG5Ckg',cost:80.68,leads:0.0,cpl:null,qa:0.0,cpqa:null,mql:0.0,cpmql:null,sql:0.0,cpsql:null,cust:0.0,cac:null,ctrAll:0.82,ctrLink:0.76,cpm:47.319648,impr:1705.0},
+{name:'Realistic Visual - MarketSnapshot - An Empty Job Site - Proclamation Lead 2 - CID559KKEK',status:'Testing',link:'https://www.facebook.com/?feed_demo_ad=120244529215710271\u0026h=AQJdNH2A8AsV89P9_Pt3Q89193U',cost:100.71,leads:0.0,cpl:null,qa:0.0,cpqa:null,mql:0.0,cpmql:null,sql:0.0,cpsql:null,cust:0.0,cac:null,ctrAll:1.74,ctrLink:0.83,cpm:39.853581,impr:2527.0},
+{name:'Realistic Visual - MarketSnapshot - Some Contractors - Secret Lead 2 - CID45I2K3W',status:'Testing',link:'https://www.facebook.com/?feed_demo_ad=120244529215620271\u0026h=AQL8aSrWQJAPy8fkWPqMR1ymPqo',cost:86.22,leads:0.0,cpl:null,qa:0.0,cpqa:null,mql:0.0,cpmql:null,sql:0.0,cpsql:null,cust:0.0,cac:null,ctrAll:1.49,ctrLink:0.87,cpm:53.519553,impr:1611.0},
+{name:'Realistic Visual - MarketSnapshot - Know What To Pay - Promise Lead - CID7HYH5G6',status:'Testing',link:'https://www.facebook.com/?feed_demo_ad=120244527845810271\u0026h=AQLM4MrkcEZTnQ88iFtB9ZcYk8c',cost:65.24,leads:0.0,cpl:null,qa:0.0,cpqa:null,mql:0.0,cpmql:null,sql:0.0,cpsql:null,cust:0.0,cac:null,ctrAll:1.24,ctrLink:0.9,cpm:45.024155,impr:1449.0},
+{name:'Realistic Visual - MarketSnapshot - Your Market Pay - Offer Lead 2 - CIDTECTV1V',status:'Testing',link:'https://www.facebook.com/?feed_demo_ad=120244529215550271\u0026h=AQK5iUpdzv1niWAJ6EMhaTmPaio',cost:59.65,leads:0.0,cpl:null,qa:0.0,cpqa:null,mql:0.0,cpmql:null,sql:0.0,cpsql:null,cust:0.0,cac:null,ctrAll:0.69,ctrLink:0.46,cpm:46.026235,impr:1296.0},
+{name:'Job Cost Report - MarketSnapshot - Your Open Position - Problem-Solution Lead 3 - CIDUMKN1X8',status:'Testing',link:'https://www.facebook.com/?feed_demo_ad=120244529215650271\u0026h=AQKa-a8R6_W4yBLQ1armwX8ba5I',cost:77.58,leads:0.0,cpl:null,qa:0.0,cpqa:null,mql:0.0,cpmql:null,sql:0.0,cpsql:null,cust:0.0,cac:null,ctrAll:1.0,ctrLink:0.6,cpm:51.962492,impr:1493.0},
+{name:'Job Cost Report - MarketSnapshot - Every Week - Problem-Solution Lead 4 - CIDPR1Z1NJ',status:'Testing',link:'https://www.facebook.com/?feed_demo_ad=120244492155460271\u0026h=AQJN4Xqtgsuq0XU7NGCwAxKLAdE',cost:83.86,leads:0.0,cpl:null,qa:0.0,cpqa:null,mql:0.0,cpmql:null,sql:0.0,cpsql:null,cust:0.0,cac:null,ctrAll:1.46,ctrLink:1.03,cpm:45.427952,impr:1846.0},
+{name:'Job Cost Report - MarketSnapshot - That Red Line - Problem-Solution Lead 5 - CIDFS2YGTK',status:'Testing',link:'https://www.facebook.com/?feed_demo_ad=120244528360910271\u0026h=AQK-s1YAVpyIllppGtS7ptEIlO0',cost:55.23,leads:0.0,cpl:null,qa:0.0,cpqa:null,mql:0.0,cpmql:null,sql:0.0,cpsql:null,cust:0.0,cac:null,ctrAll:1.26,ctrLink:1.18,cpm:46.411765,impr:1190.0},
+{name:'Job Cost Report - MarketSnapshot - This Data Fills - Offer Lead 3 - CIDLU073L7',status:'Testing',link:'https://www.facebook.com/?feed_demo_ad=120244529215690271\u0026h=AQK17Dk7FvbS5-vtrK6nVW_QeyE',cost:435.18,leads:0.0,cpl:null,qa:0.0,cpqa:null,mql:0.0,cpmql:null,sql:0.0,cpsql:null,cust:0.0,cac:null,ctrAll:1.34,ctrLink:0.91,cpm:60.016549,impr:7251.0},
+{name:'Job Cost Report - MarketSnapshot - Stop Guessing - Offer Lead 4 - CIDC2UAZX0',status:'Testing',link:'https://www.facebook.com/?feed_demo_ad=120244529215660271\u0026h=AQIvqGntZx_HKKqXXSSD7cmRJ6w',cost:69.46,leads:0.0,cpl:null,qa:0.0,cpqa:null,mql:0.0,cpmql:null,sql:0.0,cpsql:null,cust:0.0,cac:null,ctrAll:1.04,ctrLink:0.52,cpm:51.604755,impr:1346.0}
+];
+
+const DATA_STATIC_CONCEPTS = [
+{name:'SV18_BlackText',numAds:null,status:'Winner',link:'https://www.facebook.com/?feed_demo_ad=120243545214160271\u0026h=AQLRko26VlpDN88VXnWsb29MS-s',cost:7906.75,leads:31.0,cpl:255.056452,qa:21.0,cpqa:376.511905,mql:21.0,cpmql:376.511905,sql:5.0,cpsql:1581.35,cust:2.0,cac:3953.375,ctrAll:0.84,ctrLink:0.49,cpm:35.148766,impr:224951.0}
+];
+
+const DATA_VIDEOS = [
+{name:'VHK1_Hook1HereAre5RW | VB2_Short | VV1_5ReasonsWhy',status:'Testing',link:'https://www.facebook.com/?feed_demo_ad=120244323711590271\u0026h=AQJaPBuAKVsLCvs8qPcfc76HrAw',cost:6.47,leads:0.0,cpl:null,qa:0.0,cpqa:null,mql:0.0,cpmql:null,sql:0.0,cpsql:null,cust:0.0,cac:null,hookRate:30.3,holdRate:38.2,ctrAll:0.34,ctrLink:0.34,cpm:22.006803,impr:294.0},
+{name:'VHK2_Hook2StrugglingToHire | VB2_Short | VV1_5ReasonsWhy',status:'Testing',link:'https://www.facebook.com/?feed_demo_ad=120243544787340271\u0026h=AQLB_udq-lkkZzoEf7VxM-udiu8',cost:125.67,leads:0.0,cpl:null,qa:0.0,cpqa:null,mql:0.0,cpmql:null,sql:0.0,cpsql:null,cust:0.0,cac:null,hookRate:14.2,holdRate:15.7,ctrAll:0.84,ctrLink:0.59,cpm:26.395715,impr:4761.0},
+{name:'VHK20_DidntYouSay | VB9_ControlReviewCandidates | VV8_EasierThanThat',status:'Winner',link:'https://www.facebook.com/?feed_demo_ad=120243544787330271\u0026h=AQIw95W30xfr6QCWq58Z6VDy5cs',cost:1624.14,leads:12.0,cpl:135.345,qa:4.0,cpqa:406.035,mql:3.0,cpmql:541.38,sql:2.0,cpsql:812.07,cust:1.0,cac:1624.14,hookRate:33.8,holdRate:8.3,ctrAll:0.64,ctrLink:0.34,cpm:32.430911,impr:50080.0},
+{name:'VHK23_HVAC | VB10_ControlWaitDontTellMe | VV9_ItsImpossible',status:'Testing',link:'https://www.facebook.com/?feed_demo_ad=120243545214240271\u0026h=AQJquQlDyDj71a0ZiVwf7-g_OGU',cost:518.95,leads:2.0,cpl:259.475,qa:0.0,cpqa:null,mql:0.0,cpmql:null,sql:0.0,cpsql:null,cust:0.0,cac:null,hookRate:22.2,holdRate:30.2,ctrAll:0.86,ctrLink:0.52,cpm:39.222281,impr:13231.0},
+{name:'VHK23_HVAC | VB11_ControlYouShouldbeOut | VV10_YouSuck',status:'Testing',link:'https://www.facebook.com/?feed_demo_ad=120243545214220271\u0026h=AQK2eTxDtONn4QuY21DApRKzNFo',cost:67.61,leads:0.0,cpl:null,qa:0.0,cpqa:null,mql:0.0,cpmql:null,sql:0.0,cpsql:null,cust:0.0,cac:null,hookRate:12.6,holdRate:24.1,ctrAll:0.6,ctrLink:0.36,cpm:27.076492,impr:2497.0},
+{name:'VHK69_RegularCTA | VB19_NewBackPocket | VV15_GreatHiringPartner',status:'Winner',link:'https://www.facebook.com/?feed_demo_ad=120244323400210271\u0026h=AQJi_moXQdRAKbe-89A2WvW6huA',cost:2262.98,leads:5.0,cpl:452.596,qa:5.0,cpqa:452.596,mql:4.0,cpmql:565.745,sql:0.0,cpsql:null,cust:0.0,cac:null,hookRate:29.9,holdRate:11.5,ctrAll:0.81,ctrLink:0.54,cpm:43.404492,impr:52137.0},
+{name:'VHK69_RegularCTA | VB20_WhatIsLike | VV15_GreatHiringPartner',status:'Testing',link:'https://www.facebook.com/?feed_demo_ad=120244263250810271\u0026h=AQL_W1OIpft3z8ZM_krxgiAvxs4',cost:1615.82,leads:1.0,cpl:1615.82,qa:0.0,cpqa:null,mql:0.0,cpmql:null,sql:1.0,cpsql:1615.82,cust:0.0,cac:null,hookRate:25.9,holdRate:16.4,ctrAll:1.69,ctrLink:1.22,cpm:65.251383,impr:24763.0},
+{name:'VHK69_RegularCTA | VB21_TheYearYouFinallyFix | VV15_GreatHiringPartner',status:'Testing',link:'https://www.facebook.com/?feed_demo_ad=120244323399950271\u0026h=AQL42LLeaceIRBEJk0mePY5Jq1o',cost:578.36,leads:0.0,cpl:null,qa:0.0,cpqa:null,mql:0.0,cpmql:null,sql:0.0,cpsql:null,cust:0.0,cac:null,hookRate:25.9,holdRate:23.8,ctrAll:1.98,ctrLink:1.65,cpm:58.782397,impr:9839.0},
+{name:'VHK92_Hook2 | VB27_New3RW | VV12_3ReasonsWhy',status:'Testing',link:'https://www.facebook.com/?feed_demo_ad=120244323711600271\u0026h=AQL5j7etnEDyYmGCcE6hLXKC8UM',cost:2.72,leads:0.0,cpl:null,qa:0.0,cpqa:null,mql:0.0,cpmql:null,sql:0.0,cpsql:null,cust:0.0,cac:null,hookRate:17.5,holdRate:28.6,ctrAll:0.0,ctrLink:0.0,cpm:22.666667,impr:120.0},
+{name:'VHK93_Hook3 | VB28_Animated | VV20_ThisIsWhatHappens',status:'Loser',link:'https://www.facebook.com/?feed_demo_ad=120243544787320271\u0026h=AQIPaPe417y3gRX8iCrJUH5_6jw',cost:790.92,leads:1.0,cpl:790.92,qa:1.0,cpqa:790.92,mql:0.0,cpmql:null,sql:0.0,cpsql:null,cust:0.0,cac:null,hookRate:53.0,holdRate:12.6,ctrAll:1.19,ctrLink:0.69,cpm:29.244592,impr:27045.0},
+{name:'VHK94_EverHired | VB29_Control | VV22_SebastianAI',status:'Winner',link:'https://www.facebook.com/?feed_demo_ad=120243545214150271\u0026h=AQJ65CuR9Kf_63mdgccYpyp4bWI',cost:3768.34,leads:15.0,cpl:251.222667,qa:11.0,cpqa:342.576364,mql:11.0,cpmql:342.576364,sql:3.0,cpsql:1256.113333,cust:4.0,cac:942.085,hookRate:31.0,holdRate:23.5,ctrAll:0.8,ctrLink:0.49,cpm:36.594707,impr:102975.0},
+{name:'VHK98_Hook7 | VB28_Animated | VV20_ThisIsWhatHappens',status:'Testing',link:'https://www.facebook.com/?feed_demo_ad=120243544787550271\u0026h=AQIRZ42ipWTv7uuKztwH6goM4d4',cost:385.44,leads:1.0,cpl:385.44,qa:0.0,cpqa:null,mql:0.0,cpmql:null,sql:0.0,cpsql:null,cust:0.0,cac:null,hookRate:41.2,holdRate:6.8,ctrAll:1.51,ctrLink:1.13,cpm:31.443955,impr:12258.0},
+{name:'VHK102_ElectricalNewHook1 | VB27_New3RW | VV12_3ReasonsWhy',status:'Winner',link:'https://www.facebook.com/?feed_demo_ad=120243290919820271\u0026h=AQIVjLlrdh9TithIkKW3XYeJ4GU',cost:2938.78,leads:8.0,cpl:367.3475,qa:6.0,cpqa:489.796667,mql:5.0,cpmql:587.756,sql:2.0,cpsql:1469.39,cust:5.0,cac:587.756,hookRate:30.3,holdRate:19.4,ctrAll:0.85,ctrLink:0.48,cpm:39.233953,impr:74904.0},
+{name:'VHK105_ElectricalNewHook2 | VB27_New3RW | VV12_3ReasonsWhy',status:'Testing',link:'https://www.facebook.com/?feed_demo_ad=120243290942170271\u0026h=AQJ9BdChbwOtUEQOniTBIJGhNHs',cost:95.26,leads:0.0,cpl:null,qa:0.0,cpqa:null,mql:0.0,cpmql:null,sql:0.0,cpsql:null,cust:0.0,cac:null,hookRate:18.6,holdRate:20.1,ctrAll:1.13,ctrLink:1.0,cpm:41.309627,impr:2306.0},
+{name:'VHK107_Hook8 | VB28_Animated | VV20_ThisIsWhatHappens',status:'Testing',link:'https://www.facebook.com/?feed_demo_ad=120243109685360271\u0026h=AQJEAxfqTvobcm-20bqZn8cNQi4',cost:338.39,leads:0.0,cpl:null,qa:0.0,cpqa:null,mql:1.0,cpmql:338.39,sql:1.0,cpsql:338.39,cust:0.0,cac:null,hookRate:50.3,holdRate:5.8,ctrAll:2.25,ctrLink:1.92,cpm:39.913895,impr:8478.0},
+{name:'VHK108_Hook9 | VB28_Animated | VV20_ThisIsWhatHappens',status:'Testing',link:'https://www.facebook.com/?feed_demo_ad=120243109685320271\u0026h=AQIwd-K2P0womwKzblsZU6DFWGE',cost:283.8,leads:0.0,cpl:null,qa:0.0,cpqa:null,mql:0.0,cpmql:null,sql:0.0,cpsql:null,cust:0.0,cac:null,hookRate:44.9,holdRate:6.9,ctrAll:2.31,ctrLink:1.93,cpm:49.356522,impr:5750.0},
+{name:'VHK109_Hook10 | VB28_Animated | VV20_ThisIsWhatHappens',status:'Testing',link:'https://www.facebook.com/?feed_demo_ad=120243109685330271\u0026h=AQI1E7u0QeNYtiq48AutHuHrTSU',cost:124.85,leads:0.0,cpl:null,qa:0.0,cpqa:null,mql:0.0,cpmql:null,sql:0.0,cpsql:null,cust:0.0,cac:null,hookRate:34.9,holdRate:9.5,ctrAll:1.2,ctrLink:0.89,cpm:34.874302,impr:3580.0},
+{name:'VHK110_Hook11 | VB28_Animated | VV20_ThisIsWhatHappens',status:'Testing',link:'https://www.facebook.com/?feed_demo_ad=120243109007530271\u0026h=AQJKJfE3w11xR346520ReeeJXaM',cost:106.75,leads:0.0,cpl:null,qa:0.0,cpqa:null,mql:0.0,cpmql:null,sql:0.0,cpsql:null,cust:0.0,cac:null,hookRate:42.3,holdRate:6.9,ctrAll:2.02,ctrLink:1.71,cpm:27.669777,impr:3858.0},
+{name:'VHK111_Hook12 | VB28_Animated | VV20_ThisIsWhatHappens',status:'Winner',link:'https://www.facebook.com/?feed_demo_ad=120243545214200271\u0026h=AQKOEuKIR-sLZjj2rfOvNsxsqao',cost:3100.53,leads:15.0,cpl:206.702,qa:8.0,cpqa:387.56625,mql:3.0,cpmql:1033.51,sql:1.0,cpsql:3100.53,cust:2.0,cac:1550.265,hookRate:55.7,holdRate:7.5,ctrAll:1.42,ctrLink:0.97,cpm:47.036166,impr:65918.0},
+{name:'VHK114_Hook1HU | VB28_Animated | VV23_EverytimeYouHire',status:'Testing',link:'https://www.facebook.com/?feed_demo_ad=120243803601040271\u0026h=AQLyT6Dudu2YEN-nXo2ol6YkdUk',cost:14.15,leads:0.0,cpl:null,qa:0.0,cpqa:null,mql:0.0,cpmql:null,sql:0.0,cpsql:null,cust:0.0,cac:null,hookRate:9.3,holdRate:12.8,ctrAll:0.48,ctrLink:0.24,cpm:33.690476,impr:420.0},
+{name:'VHK115_Hook1AI | VB28_Animated | VV23_EverytimeYouHire',status:'Winner',link:'https://www.facebook.com/?feed_demo_ad=120243803601090271\u0026h=AQLoq4VbtK5jCo6MQJqhZsbdHPI',cost:1744.66,leads:6.0,cpl:290.776667,qa:4.0,cpqa:436.165,mql:5.0,cpmql:348.932,sql:2.0,cpsql:872.33,cust:0.0,cac:null,hookRate:14.2,holdRate:15.5,ctrAll:0.65,ctrLink:0.36,cpm:46.70861,impr:37352.0},
+{name:'VHK116_Hook2HU | VB28_Animated | VV23_EverytimeYouHire',status:'Testing',link:'https://www.facebook.com/?feed_demo_ad=120243802913070271\u0026h=AQKOOvxuia7jDWT8Qw9myAZcgrU',cost:374.95,leads:0.0,cpl:null,qa:0.0,cpqa:null,mql:0.0,cpmql:null,sql:0.0,cpsql:null,cust:0.0,cac:null,hookRate:14.8,holdRate:14.5,ctrAll:0.55,ctrLink:0.39,cpm:31.981406,impr:11724.0},
+{name:'VHK117_Hook2AI | VB28_Animated | VV23_EverytimeYouHire',status:'Testing',link:'https://www.facebook.com/?feed_demo_ad=120243803601010271\u0026h=AQJdm2Br9kdotSZkmLi3BOVrzGw',cost:478.56,leads:0.0,cpl:null,qa:0.0,cpqa:null,mql:0.0,cpmql:null,sql:0.0,cpsql:null,cust:0.0,cac:null,hookRate:18.1,holdRate:14.8,ctrAll:0.64,ctrLink:0.43,cpm:39.89995,impr:11994.0},
+{name:'Animated - ThisIsWhatHappens - Hook 13 - 55 - Problem-Solution Lead 1 - CIDJQ0EGBD',status:'On the fence',link:'https://www.facebook.com/?feed_demo_ad=120244058730570271\u0026h=AQJdHe7XVxNdJi31QsDyAYLahLw',cost:2675.95,leads:8.0,cpl:334.49375,qa:5.0,cpqa:535.19,mql:6.0,cpmql:445.991667,sql:4.0,cpsql:668.9875,cust:1.0,cac:2675.95,hookRate:58.3,holdRate:9.2,ctrAll:0.86,ctrLink:0.48,cpm:28.707598,impr:93214.0},
+{name:'Animated - ThisIsWhatHappens - Hook 14 - 55 - Problem-Solution Lead 2 - CIDZR27C8C',status:'Testing',link:'https://www.facebook.com/?feed_demo_ad=120244058730710271\u0026h=AQIAFRTzGnniGSBSkvkxtddroUU',cost:50.37,leads:0.0,cpl:null,qa:0.0,cpqa:null,mql:0.0,cpmql:null,sql:0.0,cpsql:null,cust:0.0,cac:null,hookRate:36.8,holdRate:8.5,ctrAll:1.98,ctrLink:1.2,cpm:19.545984,impr:2577.0},
+{name:'Animated - ThisIsWhatHappens - Hook 15 - 55 - Problem-Solution Lead 3 - CIDV0VPB29',status:'Testing',link:'https://www.facebook.com/?feed_demo_ad=120244061607320271\u0026h=AQL5mpRj8gL-lBlBW6WO4UNU-a0',cost:38.54,leads:0.0,cpl:null,qa:0.0,cpqa:null,mql:0.0,cpmql:null,sql:0.0,cpsql:null,cust:0.0,cac:null,hookRate:42.0,holdRate:8.6,ctrAll:2.26,ctrLink:1.97,cpm:27.179126,impr:1418.0},
+{name:'AI - YogaAd - 65 - Pattern Interrupt - CID02Q78LL',status:'Loser',link:'https://www.facebook.com/?feed_demo_ad=120244322759360271\u0026h=AQKIVf5d6bDaypGisUmbh-b2B5w',cost:3099.53,leads:8.0,cpl:387.44125,qa:3.0,cpqa:1033.176667,mql:2.0,cpmql:1549.765,sql:1.0,cpsql:3099.53,cust:1.0,cac:3099.53,hookRate:20.4,holdRate:26.1,ctrAll:1.59,ctrLink:1.41,cpm:61.783009,impr:50168.0}
+];
+
+const DATA_VIDEO_CONCEPTS = [
+{name:'VV22_SebastianAI',numAds:1,status:'Winner',link:'https://www.facebook.com/?feed_demo_ad=120243545214150271\u0026h=AQJ65CuR9Kf_63mdgccYpyp4bWI',cost:4187.94,leads:17.0,cpl:246.349412,qa:12.0,cpqa:348.995,mql:6.0,cpmql:697.99,sql:2.0,cpsql:2093.97,cust:2.0,cac:2093.97,hookRate:31.4,holdRate:23.4,ctrAll:0.94,ctrLink:0.61,cpm:36.688685,impr:114148.0},
+{name:'VV12_3ReasonsWhy',numAds:3,status:'Winner',link:'https://www.facebook.com/?feed_demo_ad=120243290919820271\u0026h=AQIVjLlrdh9TithIkKW3XYeJ4GU',cost:4007.69,leads:12.0,cpl:333.974167,qa:9.0,cpqa:445.298889,mql:3.0,cpmql:1335.896667,sql:1.0,cpsql:4007.69,cust:2.0,cac:2003.845,hookRate:32.1,holdRate:16.7,ctrAll:1.02,ctrLink:0.67,cpm:44.429183,impr:90204.0},
+{name:'VV23_EverytimeYouHire',numAds:4,status:'Loser',link:'https://www.facebook.com/?feed_demo_ad=120243803601090271\u0026h=AQLoq4VbtK5jCo6MQJqhZsbdHPI',cost:2599.62,leads:5.0,cpl:519.924,qa:3.0,cpqa:866.54,mql:3.0,cpmql:866.54,sql:4.0,cpsql:649.905,cust:0.0,cac:null,hookRate:15.2,holdRate:15.8,ctrAll:0.67,ctrLink:0.43,cpm:39.028645,impr:66608.0},
+{name:'VV8_EasierThanThat',numAds:1,status:'Winner',link:'https://www.facebook.com/?feed_demo_ad=120243544787330271\u0026h=AQIw95W30xfr6QCWq58Z6VDy5cs',cost:2237.65,leads:14.0,cpl:159.832143,qa:6.0,cpqa:372.941667,mql:4.0,cpmql:559.4125,sql:1.0,cpsql:2237.65,cust:1.0,cac:2237.65,hookRate:35.5,holdRate:8.5,ctrAll:0.65,ctrLink:0.36,cpm:32.525401,impr:68797.0},
+{name:'ThisIsWhatHappens',numAds:7,status:'Winner',link:'https://www.facebook.com/?feed_demo_ad=120243544787550271\u0026h=AQIRZ42ipWTv7uuKztwH6goM4d4',cost:8693.48,leads:35.0,cpl:248.385143,qa:22.0,cpqa:395.158182,mql:10.0,cpmql:869.348,sql:8.0,cpsql:1086.685,cust:0.0,cac:null,hookRate:56.0,holdRate:8.5,ctrAll:1.25,ctrLink:0.83,cpm:33.73109,impr:257729.0},
+{name:'VB19_NewBackPocket',numAds:null,status:'Loser',link:'https://www.facebook.com/?feed_demo_ad=120244323400210271\u0026h=AQJi_moXQdRAKbe-89A2WvW6huA',cost:1870.03,leads:1.0,cpl:1870.03,qa:1.0,cpqa:1870.03,mql:0.0,cpmql:null,sql:0.0,cpsql:null,cust:0.0,cac:null,hookRate:30.3,holdRate:10.4,ctrAll:0.89,ctrLink:0.54,cpm:67.529611,impr:27692.0},
+{name:'VV13_WaterBomb',numAds:null,status:'Winner',link:null,cost:2283.24,leads:11.0,cpl:207.567273,qa:7.0,cpqa:326.177143,mql:4.0,cpmql:570.81,sql:2.0,cpsql:1141.62,cust:1.0,cac:2283.24,hookRate:0.0,holdRate:null,ctrAll:0.74,ctrLink:0.46,cpm:42.714908,impr:53453.0},
+{name:'VB21_TheYearYouFinallyFix',numAds:null,status:'Testing',link:'https://www.facebook.com/?feed_demo_ad=120244323399950271\u0026h=AQL42LLeaceIRBEJk0mePY5Jq1o',cost:13.6,leads:0.0,cpl:null,qa:0.0,cpqa:null,mql:0.0,cpmql:null,sql:0.0,cpsql:null,cust:0.0,cac:null,hookRate:27.6,holdRate:25.0,ctrAll:1.38,ctrLink:0.69,cpm:93.793103,impr:145.0},
+{name:'VB20_WhatIsLike',numAds:null,status:'Testing',link:'https://www.facebook.com/?feed_demo_ad=120244263250810271\u0026h=AQL_W1OIpft3z8ZM_krxgiAvxs4',cost:52.1,leads:0.0,cpl:null,qa:0.0,cpqa:null,mql:0.0,cpmql:null,sql:1.0,cpsql:52.1,cust:0.0,cac:null,hookRate:30.2,holdRate:23.0,ctrAll:2.48,ctrLink:2.15,cpm:86.115702,impr:605.0},
+{name:'VV1_5ReasonsWhy',numAds:2,status:'Testing',link:'https://www.facebook.com/?feed_demo_ad=120243544787340271\u0026h=AQLB_udq-lkkZzoEf7VxM-udiu8',cost:274.08,leads:0.0,cpl:null,qa:0.0,cpqa:null,mql:0.0,cpmql:null,sql:0.0,cpsql:null,cust:0.0,cac:null,hookRate:17.9,holdRate:13.1,ctrAll:0.94,ctrLink:0.76,cpm:27.117839,impr:10107.0},
+{name:'VV10_YouSuck',numAds:1,status:'Testing',link:'https://www.facebook.com/?feed_demo_ad=120243545214220271\u0026h=AQK2eTxDtONn4QuY21DApRKzNFo',cost:103.88,leads:0.0,cpl:null,qa:0.0,cpqa:null,mql:0.0,cpmql:null,sql:0.0,cpsql:null,cust:0.0,cac:null,hookRate:11.7,holdRate:24.9,ctrAll:0.49,ctrLink:0.31,cpm:36.334383,impr:2859.0},
+{name:'VV9_ItsImpossible',numAds:1,status:'Winner',link:'https://www.facebook.com/?feed_demo_ad=120243545214240271\u0026h=AQJquQlDyDj71a0ZiVwf7-g_OGU',cost:578.69,leads:3.0,cpl:192.896667,qa:2.0,cpqa:289.345,mql:0.0,cpmql:null,sql:0.0,cpsql:null,cust:1.0,cac:578.69,hookRate:22.1,holdRate:26.5,ctrAll:1.0,ctrLink:0.68,cpm:42.513224,impr:13612.0},
+{name:'YogaAd',numAds:null,status:'Loser',link:'https://www.facebook.com/?feed_demo_ad=120244322759360271\u0026h=AQKIVf5d6bDaypGisUmbh-b2B5w',cost:5906.77,leads:15.0,cpl:393.784667,qa:3.0,cpqa:1968.923333,mql:2.0,cpmql:2953.385,sql:1.0,cpsql:5906.77,cust:1.0,cac:5906.77,hookRate:19.2,holdRate:23.7,ctrAll:1.35,ctrLink:1.16,cpm:60.883866,impr:97017.0}
+];
+
+const DATA_COPY = [
+{name:'CHK10_WeDareYou | CB6_GreatHiringPartner1',status:'Loser',link:'https://www.facebook.com/?feed_demo_ad=120244128735320271\u0026h=AQKfsb1oCxQYm3jESR6rN4PY6yU',cost:987.94,leads:0.0,cpl:null,qa:1.0,cpqa:987.94,mql:0.0,cpmql:null,sql:1.0,cpsql:987.94,cust:0.0,cac:null,ctrAll:0.91,ctrLink:0.55,cpm:52.737949,impr:18733.0},
+{name:'CHK33_ItAlwaysStarts | CB10_ABlackHole',status:'On the fence',link:'https://www.facebook.com/?feed_demo_ad=120243545214240271\u0026h=AQJquQlDyDj71a0ZiVwf7-g_OGU',cost:5169.99,leads:27.0,cpl:191.481111,qa:10.0,cpqa:516.999,mql:6.0,cpmql:861.665,sql:3.0,cpsql:1723.33,cust:3.0,cac:1723.33,ctrAll:0.98,ctrLink:0.65,cpm:38.540024,impr:134146.0},
+{name:'CHK31_HowManyHours | CB8_WhatFloodsIn',status:'Loser',link:'https://www.facebook.com/?feed_demo_ad=120244058730570271\u0026h=AQJdHe7XVxNdJi31QsDyAYLahLw',cost:6025.7,leads:18.0,cpl:334.761111,qa:10.0,cpqa:602.57,mql:4.0,cpmql:1506.425,sql:4.0,cpsql:1506.425,cust:0.0,cac:null,ctrAll:0.93,ctrLink:0.64,cpm:38.095629,impr:158173.0},
+{name:'CHK2_TiredOfWastingHours | CB2_KingsRansom',status:'Winner',link:'https://www.facebook.com/?feed_demo_ad=120243290919820271\u0026h=AQIVjLlrdh9TithIkKW3XYeJ4GU',cost:27153.46,leads:96.0,cpl:282.848542,qa:65.0,cpqa:417.745539,mql:35.0,cpmql:775.813143,sql:16.0,cpsql:1697.09125,cust:6.0,cac:4525.576667,ctrAll:1.01,ctrLink:0.67,cpm:38.886429,impr:698276.0},
+{name:'CHK11_HeresWhy$1M+ | CB7_GreatHiringPartner2',status:'Testing',link:'https://www.facebook.com/?feed_demo_ad=120244323400210271\u0026h=AQJi_moXQdRAKbe-89A2WvW6huA',cost:947.79,leads:1.0,cpl:947.79,qa:0.0,cpqa:null,mql:0.0,cpmql:null,sql:0.0,cpsql:null,cust:0.0,cac:null,ctrAll:0.97,ctrLink:0.63,cpm:97.619734,impr:9709.0}
+];
+
+const DATA_COPY_CONCEPTS = [
+{name:'WeDareYou',numAds:1,status:'Loser',link:'https://www.facebook.com/?feed_demo_ad=120244128735320271\u0026h=AQKfsb1oCxQYm3jESR6rN4PY6yU',cost:987.94,leads:null,cpl:null,qa:1.0,cpqa:987.94,mql:null,cpmql:null,sql:1.0,cpsql:987.94,cust:null,cac:null,ctrAll:null,ctrLink:null,cpm:52.737949,impr:18733.0},
+{name:'ItAlwaysStarts',numAds:1,status:'On the fence',link:'https://www.facebook.com/?feed_demo_ad=120243545214240271\u0026h=AQJquQlDyDj71a0ZiVwf7-g_OGU',cost:5169.99,leads:27.0,cpl:191.481111,qa:10.0,cpqa:516.999,mql:6.0,cpmql:861.665,sql:3.0,cpsql:1723.33,cust:3.0,cac:1723.33,ctrAll:null,ctrLink:null,cpm:38.540024,impr:134146.0},
+{name:'HowManyHours',numAds:1,status:'Loser',link:'https://www.facebook.com/?feed_demo_ad=120244058730570271\u0026h=AQJdHe7XVxNdJi31QsDyAYLahLw',cost:6025.7,leads:18.0,cpl:334.761111,qa:10.0,cpqa:602.57,mql:4.0,cpmql:1506.425,sql:4.0,cpsql:1506.425,cust:null,cac:null,ctrAll:null,ctrLink:null,cpm:38.095629,impr:158173.0},
+{name:'TiredOfWastingHours',numAds:1,status:'Winner',link:'https://www.facebook.com/?feed_demo_ad=120243290919820271\u0026h=AQIVjLlrdh9TithIkKW3XYeJ4GU',cost:27153.46,leads:96.0,cpl:282.848542,qa:65.0,cpqa:417.745538,mql:35.0,cpmql:775.813143,sql:16.0,cpsql:1697.09125,cust:6.0,cac:4525.576667,ctrAll:null,ctrLink:null,cpm:38.886429,impr:698276.0},
+{name:'HeresWhy$1M+',numAds:1,status:'Testing',link:'https://www.facebook.com/?feed_demo_ad=120244323400210271\u0026h=AQJi_moXQdRAKbe-89A2WvW6huA',cost:947.79,leads:1.0,cpl:947.79,qa:null,cpqa:null,mql:null,cpmql:null,sql:null,cpsql:null,cust:null,cac:null,ctrAll:null,ctrLink:null,cpm:97.619734,impr:9709.0}
+];
+
+// ======================== CONFIG ========================
+const TABS = [
+  {id:'statics', label:'Static Ads', data:DATA_STATICS, isConcept:false, isVideo:false},
+  {id:'staticConcepts', label:'Static Concepts', data:DATA_STATIC_CONCEPTS, isConcept:true, isVideo:false},
+  {id:'videos', label:'Video Ads', data:DATA_VIDEOS, isConcept:false, isVideo:true},
+  {id:'videoConcepts', label:'Video Concepts', data:DATA_VIDEO_CONCEPTS, isConcept:true, isVideo:true},
+  {id:'copy', label:'Copy', data:DATA_COPY, isConcept:false, isVideo:false},
+  {id:'copyConcepts', label:'Copy Concepts', data:DATA_COPY_CONCEPTS, isConcept:true, isVideo:false}
+];
+
+let activeTab = 'statics';
+let sortCol = 'cost';
+let sortAsc = false;
+let searchQ = '';
+let filterWinners = false;
+let filterSpend = false;
+
+// ======================== FORMATTERS ========================
+const dash = '<span class="nd">&mdash;</span>';
+const fmtD = v => '$' + v.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
+const fmtD0 = v => '$' + Math.round(v).toLocaleString('en-US');
+const fmtN = v => Number.isInteger(v) ? v.toLocaleString('en-US') : v.toLocaleString('en-US', {maximumFractionDigits:1});
+const fmtP1 = v => v.toFixed(1) + '%';
+const fmtP2 = v => v.toFixed(2) + '%';
+const fmtComma = v => Math.round(v).toLocaleString('en-US');
+
+function badgeClass(val, metric) {
+  if (val == null) return 'nd';
+  if (metric === 'cpqa') {
+    if (val <= 500) return 'wk';
+    if (val <= 600) return 'of';
+    return 'ak';
+  }
+  if (metric === 'hookRate' || metric === 'holdRate') {
+    if (val >= 20) return 'wk';
+    if (val >= 15) return 'of';
+    return 'ak';
+  }
+  return '';
+}
+
+function badgeHTML(val, metric, fmt) {
+  if (val == null) return dash;
+  const cls = badgeClass(val, metric);
+  return '<span class="badge ' + cls + '">' + fmt(val) + '</span>';
+}
+
+function statusBadge(s) {
+  if (!s) return dash;
+  const map = {'Winner':'status-winner','Loser':'status-loser','Testing':'status-testing','On the fence':'status-fence','Paused':'status-paused'};
+  return '<span class="status-badge ' + (map[s]||'status-testing') + '">' + s + '</span>';
+}
+
+function viewLink(url) {
+  if (!url) return '<span class="no-link">&mdash;</span>';
+  return '<a class="view-link" href="' + url + '" target="_blank" rel="noopener">View <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3.5 1.5h7v7M10.5 1.5L1.5 10.5"/></svg></a>';
+}
+
+// ======================== COLUMNS ========================
+function getCols(tabId) {
+  const t = TABS.find(x => x.id === tabId);
+  const cols = [
+    {key:'idx', label:'#', sticky:'stick-idx'},
+    {key:'name', label:'Creative', sticky:'stick-name', sortable:true},
+  ];
+  if (t.isConcept) {
+    cols.push({key:'status', label:'Status'});
+    cols.push({key:'numAds', label:'# Ads', sortable:true});
+  } else {
+    cols.push({key:'status', label:'Status'});
+  }
+  cols.push(
+    {key:'link', label:'Preview'},
+    {key:'cost', label:'Spend', sortable:true},
+    {key:'leads', label:'Leads', sortable:true},
+    {key:'cpl', label:'CPL', sortable:true},
+    {key:'qa', label:'QA', sortable:true},
+    {key:'cpqa', label:'CPQA', sortable:true},
+    {key:'mql', label:'MQL', sortable:true},
+    {key:'cpmql', label:'CPMQL', sortable:true},
+    {key:'sql', label:'SQL', sortable:true},
+    {key:'cpsql', label:'CPSQL', sortable:true},
+    {key:'cust', label:'Cust', sortable:true},
+    {key:'cac', label:'CAC', sortable:true}
+  );
+  if (t.isVideo) {
+    cols.push(
+      {key:'hookRate', label:'Hook %', sortable:true},
+      {key:'holdRate', label:'Hold %', sortable:true}
+    );
+  }
+  cols.push(
+    {key:'ctrAll', label:'CTR (all)', sortable:true},
+    {key:'ctrLink', label:'CTR (link)', sortable:true},
+    {key:'cpm', label:'CPM', sortable:true},
+    {key:'impr', label:'Impressions', sortable:true}
+  );
+  return cols;
+}
+
+// ======================== RENDER ========================
+function renderTabs() {
+  const bar = document.getElementById('tabBar');
+  bar.innerHTML = TABS.map(t =>
+    '<button class="tab-btn' + (t.id===activeTab?' active':'') + '" onclick="switchTab(\'' + t.id + '\')">' + t.label + ' <span class="cnt">(' + t.data.length + ')</span></button>'
+  ).join('');
+}
+
+function switchTab(id) {
+  activeTab = id;
+  sortCol = 'cost';
+  sortAsc = false;
+  renderTabs();
+  updateLegend();
+  renderTable();
+}
+
+function updateLegend() {
+  const t = TABS.find(x => x.id === activeTab);
+  let html = '<div class="legend-item"><span class="legend-dot dot-green"></span> CPQA &le; $500</div>' +
+    '<div class="legend-item"><span class="legend-dot dot-yellow"></span> CPQA $500&ndash;$600</div>' +
+    '<div class="legend-item"><span class="legend-dot dot-red"></span> CPQA &gt; $600</div>' +
+    '<div class="legend-item"><span class="legend-dot dot-gray"></span> No Data</div>';
+  if (t && t.isVideo) {
+    html += '<div class="legend-item"><span class="legend-dot dot-green"></span> Hook/Hold &ge; 20%</div>' +
+      '<div class="legend-item"><span class="legend-dot dot-yellow"></span> Hook/Hold 15&ndash;20%</div>' +
+      '<div class="legend-item"><span class="legend-dot dot-red"></span> Hook/Hold &lt; 15%</div>';
+  }
+  document.getElementById('legend').innerHTML = html;
+}
+
+function renderTable() {
+  const t = TABS.find(x => x.id === activeTab);
+  if (!t) return;
+  const cols = getCols(activeTab);
+  let rows = [...t.data];
+
+  // Filter
+  if (searchQ) {
+    const q = searchQ.toLowerCase();
+    rows = rows.filter(r => r.name.toLowerCase().includes(q));
+  }
+  if (filterWinners) {
+    rows = rows.filter(r => r.cpqa != null && r.cpqa > 0 && r.cpqa <= 500);
+  }
+  if (filterSpend) {
+    rows = rows.filter(r => r.cost != null && r.cost >= 500);
+  }
+
+  // Sort
+  rows.sort((a, b) => {
+    let va = a[sortCol], vb = b[sortCol];
+    if (va == null && vb == null) return 0;
+    if (va == null) return 1;
+    if (vb == null) return -1;
+    if (typeof va === 'string') return sortAsc ? va.localeCompare(vb) : vb.localeCompare(va);
+    return sortAsc ? va - vb : vb - va;
+  });
+
+  const totalRows = rows.length;
+
+  // Build table
+  let html = '<table><thead><tr>';
+  cols.forEach(c => {
+    const stickyClass = c.sticky ? ' '+c.sticky : '';
+    const sortedClass = c.key === sortCol ? ' sorted' : '';
+    const arrow = c.sortable ? '<span class="arrow">' + (c.key===sortCol?(sortAsc?'\u25B2':'\u25BC'):'\u25B2') + '</span>' : '';
+    const onclick = c.sortable ? ' onclick="doSort(\'' + c.key + '\')"' : '';
+    html += '<th class="' + stickyClass + sortedClass + '"' + onclick + '>' + c.label + arrow + '</th>';
+  });
+  html += '</tr></thead><tbody>';
+
+  rows.forEach((r, i) => {
+    html += '<tr>';
+    cols.forEach(c => {
+      const stickyClass = c.sticky ? ' '+c.sticky : '';
+      switch(c.key) {
+        case 'idx':
+          html += '<td class="idx-col' + stickyClass + '">' + (i+1) + '</td>';
+          break;
+        case 'name':
+          html += '<td class="name-col' + stickyClass + '">' + r.name + '</td>';
+          break;
+        case 'numAds':
+          html += '<td class="num">' + (r.numAds != null ? r.numAds : dash) + '</td>';
+          break;
+        case 'status':
+          html += '<td>' + statusBadge(r.status) + '</td>';
+          break;
+        case 'link':
+          html += '<td>' + viewLink(r.link) + '</td>';
+          break;
+        case 'cost':
+          html += '<td class="num">' + (r.cost!=null?fmtD(r.cost):dash) + '</td>';
+          break;
+        case 'leads':
+        case 'qa':
+        case 'mql':
+        case 'sql':
+        case 'cust':
+          html += '<td class="num">' + (r[c.key]!=null?fmtN(r[c.key]):dash) + '</td>';
+          break;
+        case 'cpl':
+        case 'cpmql':
+        case 'cpsql':
+        case 'cac':
+          html += '<td class="num">' + (r[c.key]!=null?fmtD0(r[c.key]):dash) + '</td>';
+          break;
+        case 'cpqa':
+          html += '<td class="num">' + badgeHTML(r.cpqa,'cpqa',fmtD0) + '</td>';
+          break;
+        case 'hookRate':
+          html += '<td class="num">' + badgeHTML(r.hookRate,'hookRate',fmtP1) + '</td>';
+          break;
+        case 'holdRate':
+          html += '<td class="num">' + badgeHTML(r.holdRate,'holdRate',fmtP1) + '</td>';
+          break;
+        case 'ctrAll':
+          html += '<td class="num">' + (r.ctrAll!=null?fmtP2(r.ctrAll):dash) + '</td>';
+          break;
+        case 'ctrLink':
+          html += '<td class="num">' + (r.ctrLink!=null?fmtP2(r.ctrLink):dash) + '</td>';
+          break;
+        case 'cpm':
+          html += '<td class="num">' + (r.cpm!=null?fmtD(r.cpm):dash) + '</td>';
+          break;
+        case 'impr':
+          html += '<td class="num">' + (r.impr!=null?fmtComma(r.impr):dash) + '</td>';
+          break;
+        default:
+          html += '<td class="num">' + dash + '</td>';
+      }
+    });
+    html += '</tr>';
+  });
+
+  html += '</tbody></table>';
+
+  const panelsDiv = document.getElementById('panels');
+  panelsDiv.innerHTML = '<div class="tab-panel active"><div class="table-wrap">' + html + '</div><div class="row-count">' + totalRows + ' of ' + t.data.length + ' creatives</div></div>';
+}
+
+function doSort(col) {
+  if (sortCol === col) {
+    sortAsc = !sortAsc;
+  } else {
+    sortCol = col;
+    sortAsc = false;
+  }
+  renderTable();
+}
+
+function toggleFilter(type) {
+  if (type === 'winners') {
+    filterWinners = !filterWinners;
+    document.getElementById('btnWinners').classList.toggle('active', filterWinners);
+  } else if (type === 'spend') {
+    filterSpend = !filterSpend;
+    document.getElementById('btnSpend').classList.toggle('active', filterSpend);
+  }
+  renderTable();
+}
+
+document.getElementById('search').addEventListener('input', e => {
+  searchQ = e.target.value;
+  renderTable();
+});
+
+// ======================== INIT ========================
+renderTabs();
+updateLegend();
+renderTable();
+</script>
+</body>
+</html>

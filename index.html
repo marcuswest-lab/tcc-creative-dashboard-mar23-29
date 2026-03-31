@@ -313,10 +313,7 @@ function getCols(tabId) {
     {key:'name', label:'Creative', sticky:'stick-name', sortable:true},
   ];
   if (t.isConcept) {
-    cols.push({key:'status', label:'Status'});
     cols.push({key:'numAds', label:'# Ads', sortable:true});
-  } else {
-    cols.push({key:'status', label:'Status'});
   }
   cols.push(
     {key:'link', label:'Preview'},
